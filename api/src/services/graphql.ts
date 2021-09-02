@@ -50,7 +50,7 @@ import getDatabase from '../database';
 import env from '../env';
 import { ForbiddenException, GraphQLValidationException, InvalidPayloadException } from '../exceptions';
 import { BaseException } from '@directus/shared/exceptions';
-import { listExtensions } from '../extensions';
+import { getExtensionManager } from '../extensions';
 import { Accountability } from '@directus/shared/types';
 import { AbstractServiceOptions, Action, GraphQLParams, Item, Query, SchemaOverview } from '../types';
 import { getGraphQLType } from '../utils/get-graphql-type';
@@ -1315,12 +1315,16 @@ export class GraphQLService {
 						modules: new GraphQLList(GraphQLString),
 					},
 				}),
-				resolve: async () => ({
-					interfaces: listExtensions('interface'),
-					displays: listExtensions('display'),
-					layouts: listExtensions('layout'),
-					modules: listExtensions('module'),
-				}),
+				resolve: async () => {
+					const extensionManager = getExtensionManager();
+
+					return {
+						interfaces: extensionManager.listExtensions('interface'),
+						displays: extensionManager.listExtensions('display'),
+						layouts: extensionManager.listExtensions('layout'),
+						modules: extensionManager.listExtensions('module'),
+					};
+				},
 			},
 			server_specs_oas: {
 				type: GraphQLJSON,
